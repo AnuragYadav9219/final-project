@@ -191,7 +191,9 @@ class ExpenseViewSet(viewsets.ModelViewSet):
 
 def send_email_async(email):
     try:
+        print("Sending email...")
         email.send()
+        print("Email sent successfully")
     except Exception as e:
         print("Email failed:", e)
 
