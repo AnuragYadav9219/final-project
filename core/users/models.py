@@ -83,17 +83,29 @@ def default_expiry():
 
 # ================= INVITE =================
 class GroupInvite(models.Model):
+
+    STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("accepted", "Accepted"),
+        ("rejected", "Rejected"),
+        ("expired", "Expired"),
+    ]
+
     email = models.EmailField()
-    group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name="invites")
+    group = models.ForeignKey("Group", on_delete=models.CASCADE, related_name="invites")
     invited_by = models.ForeignKey(User, on_delete=models.CASCADE)
 
     token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    accepted = models.BooleanField(default=False)
+
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="pending")
 
     created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
 
-    # AUTO EXPIRY
-    expires_at = models.DateTimeField(default=default_expiry)
+    def is_expired(self):
+        from django.utils.timezone import now
+
+        return now() > self.expires_at
 
     def __str__(self):
-        return f"Invite to {self.email} for {self.group.name}"
+        return f"{self.email} → {self.group.name} ({self.status})"

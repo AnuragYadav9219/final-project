@@ -35,8 +35,6 @@ export default function Profile() {
                 return;
             }
 
-            console.log("FINAL PAYLOAD:", payload);
-
             await updateProfile(payload).unwrap();
 
             setOpen(false);
@@ -51,6 +49,7 @@ export default function Profile() {
     };
 
     const handleLogout = () => {
+        confirm("Do you really want to logout?");
         dispatch(logout());
         navigate("/");
     };
