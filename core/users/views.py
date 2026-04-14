@@ -1,3 +1,5 @@
+import os
+import threading
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
@@ -187,6 +189,13 @@ class ExpenseViewSet(viewsets.ModelViewSet):
 # ================= INVITE =================
 
 
+def send_email_async(email):
+    try:
+        email.send()
+    except Exception as e:
+        print("Email failed:", e)
+
+
 class SendInviteView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -196,7 +205,8 @@ class SendInviteView(APIView):
         if serializer.is_valid():
             invite = serializer.save(invited_by=request.user)
 
-            link = f"http://localhost:5173/join/{invite.token}"
+            frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+            link = f"{frontend_url}/join/{invite.token}"
 
             context = {
                 "invite_link": link,
@@ -215,8 +225,11 @@ class SendInviteView(APIView):
             )
 
             email.attach_alternative(html_content, "text/html")
+            
             try:
-                email.send()
+                thread = threading.Thread(target=send_email_async, args=(email,))
+                thread.daemon = True
+                thread.start()
             except Exception as e:
                 print("Email failed:", e)
 
