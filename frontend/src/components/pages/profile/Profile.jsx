@@ -1,4 +1,4 @@
-import { useGetProfileQuery } from "@/features/auth/authApi";
+import { useGetProfileQuery, useUpdateProfileMutation } from "@/features/auth/authApi";
 import { useDispatch } from "react-redux";
 import { logout } from "@/features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
