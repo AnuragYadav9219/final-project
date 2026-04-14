@@ -15,6 +15,8 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.timezone import localtime
 from .utils import optimize_debts
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 
 from .models import Group, Expense, Member, GroupInvite, Settlement
 from .serializers import (
@@ -189,11 +191,22 @@ class ExpenseViewSet(viewsets.ModelViewSet):
 # ================= INVITE =================
 
 
-def send_email_async(email):
+def send_email_async(to_email, subject, html_content):
     try:
         print("Sending email...")
-        email.send()
+
+        message = Mail(
+            from_email="noreply@spendwise.com",
+            to_emails=to_email,
+            subject=subject,
+            html_content=html_content,
+        )
+
+        sg = SendGridAPIClient(os.getenv("SENDGRID_API_KEY"))
+        sg.send(message)
+
         print("Email sent successfully")
+
     except Exception as e:
         print("Email failed:", e)
 
@@ -219,20 +232,13 @@ class SendInviteView(APIView):
 
             html_content = render_to_string("emails/invite.html", context)
 
-            email = EmailMultiAlternatives(
-                subject=f"Join {invite.group.name} on SpendWise 🎉",
-                body=f"{request.user.username} invited you to join {invite.group.name}. Link: {link}",
-                from_email="noreply@spendwise.com",
-                to=[invite.email],
-            )
+            subject = f"Join {invite.group.name} on SpendWise 🎉"
 
-            email.attach_alternative(html_content, "text/html")
-            
-            try:
-                thread = threading.Thread(target=send_email_async, args=(email,))
-                thread.start()
-            except Exception as e:
-                print("Email failed:", e)
+            thread = threading.Thread(
+                target=send_email_async,
+                args=(invite.email, subject, html_content)
+            )
+            thread.start()
 
             return Response({"message": "Invite sent!", "token": str(invite.token)})
 
