@@ -234,7 +234,6 @@ class SendInviteView(APIView):
             ).first()
 
             if existing_invite:
-                # If expired → reuse
                 if existing_invite.is_expired():
                     existing_invite.status = "expired"
                     existing_invite.save()
