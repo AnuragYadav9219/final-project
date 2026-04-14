@@ -230,7 +230,6 @@ class SendInviteView(APIView):
             
             try:
                 thread = threading.Thread(target=send_email_async, args=(email,))
-                thread.daemon = True
                 thread.start()
             except Exception as e:
                 print("Email failed:", e)
