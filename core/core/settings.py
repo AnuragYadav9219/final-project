@@ -130,12 +130,15 @@ USE_I18N = True
 USE_TZ = True
 
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = False  
 CSRF_TRUSTED_ORIGINS = [
     "https://final-project-psi-pink.vercel.app",
 ]
 
-origins = os.getenv("CORS_ALLOWED_ORIGINS", "")
-CORS_ALLOWED_ORIGINS = [o.strip() for o in origins.split(",") if o]
+CORS_ALLOWED_ORIGINS = [
+    "https://final-project-psi-pink.vercel.app",
+    "http://localhost:5173",
+]
 
 
 # Static files (CSS, JavaScript, Images)
