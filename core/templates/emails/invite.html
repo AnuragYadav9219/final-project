@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+</head>
+
+<body style="margin:0; padding:0; font-family: Arial, sans-serif; background:#0f172a;">
+
+    <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 0;">
+        <tr>
+            <td align="center">
+
+                <table width="500" cellpadding="0" cellspacing="0"
+                    style="background:#111827; border-radius:12px; padding:30px; color:#fff;">
+
+                    <!-- LOGO -->
+                    <tr>
+                        <td align="center" style="font-size:22px; font-weight:bold; color:#6366f1;">
+                            SpendWise 💰
+                        </td>
+                    </tr>
+
+                    <!-- TITLE -->
+                    <tr>
+                        <td align="center" style="padding-top:20px; font-size:20px;">
+                            You're invited to join <b>{{ group_name }}</b> 🎉
+                        </td>
+                    </tr>
+
+                    <!-- MESSAGE -->
+                    <tr>
+                        <td align="center" style="padding:15px 0; font-size:14px; color:#9ca3af;">
+                            <b>{{ inviter_name }}</b> invited you to collaborate on shared expenses.
+                        </td>
+                    </tr>
+
+                    <!-- BUTTON -->
+                    <tr>
+                        <td align="center" style="padding:20px;">
+                            <a href="{{ invite_link }}" style="background: linear-gradient(90deg,#6366f1,#06b6d4);
+                      color:#fff;
+                      padding:12px 24px;
+                      border-radius:8px;
+                      text-decoration:none;
+                      font-weight:bold;">
+                                Join Group
+                            </a>
+                        </td>
+                    </tr>
+
+                    <!-- LINK -->
+                    <tr>
+                        <td align="center" style="font-size:12px; color:#6b7280;">
+                            Or copy this link:
+                            <br />
+                            <span style="color:#06b6d4;">{{ invite_link }}</span>
+                        </td>
+                    </tr>
+
+                    <!-- EXPIRY -->
+                    <tr>
+                        <td align="center" style="padding-top:15px; font-size:12px; color:#f87171;">
+                            ⏳ This invite expires on {{ expiry_date }}
+                        </td>
+                    </tr>
+
+                    <!-- FOOTER -->
+                    <tr>
+                        <td align="center" style="padding-top:20px; font-size:11px; color:#6b7280;">
+                            If you didn’t expect this invite, you can ignore this email.
+                        </td>
+                    </tr>
+
+                </table>
+
+            </td>
+        </tr>
+    </table>
+
+</body>
+
+</html>
