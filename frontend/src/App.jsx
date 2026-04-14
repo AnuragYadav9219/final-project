@@ -11,6 +11,7 @@ import Expenses from "./components/pages/expense/Expenses";
 import Groups from "./components/pages/group/Groups";
 import GroupDetails from "./components/pages/group/GroupDetails";
 import JoinGroup from "./components/pages/group/JoinGroup";
+import Profile from "./components/pages/profile/Profile";
 
 // ================= ROUTE GUARDS =================
 
@@ -88,6 +89,17 @@ export default function App() {
             <PrivateRoute>
               <Layout>
                 <GroupDetails />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <Profile />
               </Layout>
             </PrivateRoute>
           }

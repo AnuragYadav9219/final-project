@@ -1,17 +1,14 @@
 import os
-import threading
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from collections import defaultdict
 from rest_framework.exceptions import PermissionDenied
 from decimal import Decimal
-from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.timezone import localtime
 from .utils import optimize_debts
@@ -27,6 +24,7 @@ from .serializers import (
     RegisterSerializer,
     InviteSerializer,
     SettlementSerializer,
+    ProfileSerializer,
 )
 
 
@@ -72,13 +70,19 @@ class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        return Response(
-            {
-                "id": request.user.id,
-                "username": request.user.username,
-                "email": request.user.email,
-            }
+        serializer = ProfileSerializer(request.user)
+        return Response(serializer.data)
+
+    def put(self, request):
+        serializer = ProfileSerializer(
+            request.user,
+            data=request.data,
+            partial=True,  # 🔥 allows partial updates
         )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data)
 
 
 # ================= GROUP =================

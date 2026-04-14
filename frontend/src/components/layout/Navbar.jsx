@@ -51,6 +51,7 @@ export default function Navbar({ toggleSidebar, user }) {
                     size="icon"
                     className="hover:bg-red-500/20 hover:text-red-400"
                     onClick={() => {
+                        confirm("Do you really want to logout?")
                         dispatch(logout());
                         navigate("/");
                     }}

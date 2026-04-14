@@ -46,6 +46,25 @@ class LoginSerializer(serializers.Serializer):
         return user
 
 
+# ================= PROFILE =================
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "username", "email"]
+        read_only_fields = ["id"]
+
+    def validate_email(self, value):
+        user = self.instance
+
+        # Prevent duplicate emails
+        if User.objects.exclude(id=user.id).filter(email=value).exists():
+            raise serializers.ValidationError("Email already exists")
+
+        return value
+
+
 # ================= MEMBER =================
 
 
