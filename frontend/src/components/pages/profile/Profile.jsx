@@ -20,11 +20,33 @@ export default function Profile() {
 
     const handleUpdate = async (data) => {
         try {
-            await updateProfile(data).unwrap();
+            const payload = {};
+
+            if (data.username !== user.username) {
+                payload.username = data.username;
+            }
+
+            if (data.email !== user.email) {
+                payload.email = data.email;
+            }
+
+            if (Object.keys(payload).length === 0) {
+                alert("No changes made");
+                return;
+            }
+
+            console.log("FINAL PAYLOAD:", payload);
+
+            await updateProfile(payload).unwrap();
+
             setOpen(false);
         } catch (err) {
             console.error(err);
-            alert("Failed to update profile");
+            alert(
+                err?.data?.username ||
+                err?.data?.email ||
+                "Failed to update profile"
+            );
         }
     };
 

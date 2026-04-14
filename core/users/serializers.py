@@ -46,7 +46,7 @@ class LoginSerializer(serializers.Serializer):
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
-            print("❌ USER NOT FOUND")
+            print("USER NOT FOUND")
             raise serializers.ValidationError({"detail": "Invalid email or password"})
 
         user = authenticate(username=user.username, password=password)
@@ -73,14 +73,25 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = ["id", "username", "email"]
         read_only_fields = ["id"]
 
-    def validate_email(self, value):
-        value = value.lower()
+    def validate(self, data):
         user = self.instance
 
-        if User.objects.exclude(id=user.id).filter(email=value).exists():
-            raise serializers.ValidationError("Email already exists")
+        username = data.get("username", user.username)
+        email = data.get("email", user.email).lower()
 
-        return value
+        if User.objects.exclude(id=user.id).filter(username=username).exists():
+            raise serializers.ValidationError({
+                "username": "Username already taken"
+            })
+
+        if User.objects.exclude(id=user.id).filter(email=email).exists():
+            raise serializers.ValidationError({
+                "email": "Email already exists"
+            })
+
+        data["email"] = email  
+
+        return data
 
 
 # ================= MEMBER =================

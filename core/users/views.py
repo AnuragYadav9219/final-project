@@ -81,7 +81,7 @@ class ProfileView(APIView):
         serializer = ProfileSerializer(
             request.user,
             data=request.data,
-            partial=True,  # 🔥 allows partial updates
+            partial=True, 
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
