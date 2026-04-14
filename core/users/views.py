@@ -234,11 +234,7 @@ class SendInviteView(APIView):
 
             subject = f"Join {invite.group.name} on SpendWise 🎉"
 
-            thread = threading.Thread(
-                target=send_email_async,
-                args=(invite.email, subject, html_content)
-            )
-            thread.start()
+            send_email_async(invite.email, subject, html_content)
 
             return Response({"message": "Invite sent!", "token": str(invite.token)})
 
