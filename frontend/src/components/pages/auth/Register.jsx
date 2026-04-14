@@ -26,7 +26,8 @@ export default function Register() {
             dispatch(setCredentials({ access: res.access }));
             navigate("/dashboard");
         } catch (err) {
-            alert("Registration failed");
+            console.log(err);
+            alert(JSON.stringify(err?.data || err));
         }
     };
 

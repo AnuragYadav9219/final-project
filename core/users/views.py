@@ -215,7 +215,10 @@ class SendInviteView(APIView):
             )
 
             email.attach_alternative(html_content, "text/html")
-            email.send()
+            try:
+                email.send()
+            except Exception as e:
+                print("Email failed:", e)
 
             return Response({"message": "Invite sent!", "token": str(invite.token)})
 
