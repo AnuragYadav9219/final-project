@@ -20,15 +20,18 @@ export default function InviteMemberModal({ open, onClose, groupId }) {
                 group: groupId,
             }).unwrap();
 
-            // Backend should return token ideally
-            if (res?.token) {
-                const link = `${window.location.origin}/join/${res.token}`;
-                setInviteLink(link);
-            }
+            // ✅ generate link
+            const link = `${window.location.origin}/join/${res.token}`;
+            setInviteLink(link);
 
             setEmail("");
+
         } catch (err) {
-            alert("Failed to send invite");
+            console.log(err);
+
+            alert(
+                err?.data?.error || "Failed to send invite"
+            );
         }
     };
 
@@ -59,12 +62,14 @@ export default function InviteMemberModal({ open, onClose, groupId }) {
                 {inviteLink && (
                     <div className="mt-3 p-3 bg-black/30 rounded-lg">
                         <p className="text-xs mb-2">Invite Link:</p>
+
                         <div className="flex gap-2">
                             <input
                                 value={inviteLink}
                                 readOnly
                                 className="flex-1 bg-transparent text-xs"
                             />
+
                             <Button size="sm" onClick={copyLink}>
                                 Copy
                             </Button>

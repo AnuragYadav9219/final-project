@@ -81,7 +81,7 @@ class ProfileView(APIView):
         serializer = ProfileSerializer(
             request.user,
             data=request.data,
-            partial=True, 
+            partial=True,
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -226,7 +226,28 @@ class SendInviteView(APIView):
         serializer = InviteSerializer(data=request.data)
 
         if serializer.is_valid():
-            invite = serializer.save(invited_by=request.user)
+            email = serializer.validated_data["email"]
+            group = serializer.validated_data["group"]
+
+            existing_invite = GroupInvite.objects.filter(
+                email=email, group=group, status="pending"
+            ).first()
+
+            if existing_invite:
+                # If expired → reuse
+                if existing_invite.is_expired():
+                    existing_invite.status = "expired"
+                    existing_invite.save()
+                else:
+                    return Response(
+                        {"error": "Invite already sent and still pending"}, status=400
+                    )
+
+            invite = GroupInvite.objects.create(
+                email=email,
+                group=group,
+                invited_by=request.user,
+            )
 
             frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
             link = f"{frontend_url}/join/{invite.token}"
@@ -242,9 +263,18 @@ class SendInviteView(APIView):
 
             subject = f"Join {invite.group.name} on SpendWise 🎉"
 
-            send_email_async(invite.email, subject, html_content)
+            try:
+                send_email_async(invite.email, subject, html_content)
+            except Exception as e:
+                print("Email failed:", e)
 
-            return Response({"message": "Invite sent!", "token": str(invite.token)})
+            return Response(
+                {
+                    "message": "Invite sent!",
+                    "token": str(invite.token),
+                    "status": invite.status,
+                }
+            )
 
         return Response(serializer.errors, status=400)
 
@@ -254,16 +284,39 @@ class AcceptInviteView(APIView):
 
     def post(self, request, token):
         try:
-            invite = GroupInvite.objects.get(token=token, accepted=False)
+            invite = GroupInvite.objects.get(token=token)
         except GroupInvite.DoesNotExist:
-            return Response({"error": "Invalid invite"}, status=400)
+            return Response({"error": "Invalid invite"}, status=404)
 
-        Member.objects.create(user=request.user, group=invite.group)
+        if invite.status == "accepted":
+            return Response({"error": "Invite already used"}, status=400)
 
-        invite.accepted = True
+        if invite.is_expired():
+            invite.status = "expired"
+            invite.save()
+            return Response({"error": "Invite expired"}, status=400)
+
+        invite.status = "accepted"
         invite.save()
 
-        return Response({"message": "Joined successfully"})
+        Member.objects.get_or_create(user=request.user, group=invite.group)
+
+        return Response({"message": "Joined group successfully"})
+
+
+class RejectInviteView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, token):
+        try:
+            invite = GroupInvite.objects.get(token=token)
+        except GroupInvite.DoesNotExist:
+            return Response({"error": "Invalid invite"}, status=404)
+
+        invite.status = "rejected"
+        invite.save()
+
+        return Response({"message": "Invite rejected"})
 
 
 # ================= SETTLEMENT =================
