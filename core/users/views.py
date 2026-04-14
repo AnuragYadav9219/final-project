@@ -196,7 +196,7 @@ def send_email_async(to_email, subject, html_content):
         print("Sending email...")
 
         message = Mail(
-            from_email="anuragyad1398@gmail.com",
+            from_email="noreply@sendgrid.net",
             to_emails=to_email,
             subject=subject,
             html_content=html_content,
