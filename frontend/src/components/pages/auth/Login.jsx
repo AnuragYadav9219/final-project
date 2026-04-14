@@ -21,10 +21,11 @@ export default function Login() {
 
             localStorage.setItem("access", res.access);
             dispatch(setCredentials({ access: res.access }));
-            
+
             navigate("/dashboard");
         } catch (err) {
-            alert("Invalid credentials");
+            console.log("LOGIN ERROR:", err);
+            alert(err?.data?.detail || "Login failed");
         }
     };
 

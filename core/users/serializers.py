@@ -20,28 +20,46 @@ class RegisterSerializer(serializers.ModelSerializer):
         extra_kwargs = {"password": {"write_only": True}}
 
     def validate_email(self, value):
+        value = value.lower()
+
         if User.objects.filter(email=value).exists():
             raise serializers.ValidationError("Email already exists")
+
         return value
 
     def create(self, validated_data):
-        return User.objects.create_user(**validated_data)
+        validated_data["email"] = validated_data["email"].lower()
+        user = User.objects.create_user(**validated_data)
+        return user
 
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
-    password = serializers.CharField()
+    password = serializers.CharField(write_only=True)
 
     def validate(self, data):
-        try:
-            user = User.objects.get(email=data["email"])
-        except User.DoesNotExist:
-            raise serializers.ValidationError("Invalid credentials")
+        email = data.get("email").lower()
+        password = data.get("password")
 
-        user = authenticate(username=user.username, password=data["password"])
+        print("LOGIN ATTEMPT:", email) 
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            print("❌ USER NOT FOUND")
+            raise serializers.ValidationError({"detail": "Invalid email or password"})
+
+        user = authenticate(username=user.username, password=password)
 
         if not user:
-            raise serializers.ValidationError("Invalid credentials")
+            print("INVALID PASSWORD")
+            raise serializers.ValidationError({"detail": "Invalid email or password"})
+
+        if not user.is_active:
+            print("USER INACTIVE")
+            raise serializers.ValidationError({"detail": "User account is disabled"})
+
+        print("LOGIN SUCCESS:", user.username)
 
         return user
 
@@ -56,9 +74,9 @@ class ProfileSerializer(serializers.ModelSerializer):
         read_only_fields = ["id"]
 
     def validate_email(self, value):
+        value = value.lower()
         user = self.instance
 
-        # Prevent duplicate emails
         if User.objects.exclude(id=user.id).filter(email=value).exists():
             raise serializers.ValidationError("Email already exists")
 

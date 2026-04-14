@@ -50,10 +50,13 @@ class RegisterView(APIView):
 
 class LoginView(APIView):
     def post(self, request):
+        print("REQUEST DATA:", request.data)
+
         serializer = LoginSerializer(data=request.data)
 
         if serializer.is_valid():
             user = serializer.validated_data
+
             refresh = RefreshToken.for_user(user)
 
             return Response(
@@ -63,6 +66,7 @@ class LoginView(APIView):
                 }
             )
 
+        print("LOGIN ERROR:", serializer.errors)
         return Response(serializer.errors, status=400)
 
 
