@@ -1,3 +1,6 @@
+import ExpenseCard from "./ExpenseCard";
+import ExpenseTable from "./ExpenseTable";
+
 export default function ExpenseList({
     data,
     formatCurrency,
